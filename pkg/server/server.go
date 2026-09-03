@@ -3,11 +3,15 @@ package server
 import (
 	"log"
 	"net/http"
+
+	"github.com/DapxaH/final_project_yandex/pkg/api"
 )
 
 func Start() {
 	const port = ":7540"
 	const webDir = "./web"
+
+	api.Init()
 
 	http.Handle("/", http.FileServer(http.Dir(webDir)))
 
