@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Task представляет задачу в планировщике
 type Task struct {
 	ID      string `json:"id"`
 	Date    string `json:"date"`
@@ -12,6 +13,7 @@ type Task struct {
 	Repeat  string `json:"repeat"`
 }
 
+// AddTask добавляет новую задачу в БД
 func AddTask(task *Task) (int64, error) {
 	query := `
 			INSERT INTO scheduler (date, title, comment, repeat)
@@ -36,6 +38,7 @@ func AddTask(task *Task) (int64, error) {
 	return id, nil
 }
 
+// Tasks возвращает список задач, отсортированных по дате
 func Tasks(limit int) ([]*Task, error) {
 	query := `
 		SELECT id, date, title, comment, repeat
@@ -74,6 +77,7 @@ func Tasks(limit int) ([]*Task, error) {
 	return tasks, nil
 }
 
+// GetTask возвращает задачу по её id
 func GetTask(id string) (*Task, error) {
 	query := `
 		SELECT id, date, title, comment, repeat
@@ -97,6 +101,7 @@ func GetTask(id string) (*Task, error) {
 	return &task, nil
 }
 
+// UpdateTask обновляет поля существующей задачи
 func UpdateTask(task *Task) error {
 	query := `
 		UPDATE scheduler
@@ -128,6 +133,7 @@ func UpdateTask(task *Task) error {
 	return nil
 }
 
+// DeleteTask удаляет задачу по id
 func DeleteTask(id string) error {
 	query := `
 		DELETE FROM scheduler
@@ -151,6 +157,7 @@ func DeleteTask(id string) error {
 	return nil
 }
 
+// UpdateDate изменяет дату следующего выполнения повторяющейся задачи (периодической)
 func UpdateDate(next string, id string) error {
 	query := `
 		UPDATE scheduler

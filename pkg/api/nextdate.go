@@ -18,6 +18,8 @@ func afterNow(date, now time.Time) bool {
 	return date.After(now)
 }
 
+// NextDate рассчитывает ближайшую дату следующего выполнения задачи
+// по заданному правилу повторения.
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	date, err := time.Parse(dateFormat, dstart)
 	if err != nil {
@@ -97,7 +99,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 			}
 		}
 	}
-	// Повторение
+	// Повтор задачи в указанные дни месяца и, если нужно, в месяцы года.
 	if strings.HasPrefix(repeat, "m ") {
 		parts := strings.Split(repeat, " ")
 

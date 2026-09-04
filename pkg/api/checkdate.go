@@ -6,6 +6,9 @@ import (
 	"github.com/DapxaH/final_project_yandex/pkg/db"
 )
 
+// checkDate проверяет дату задачи и при необходимости исправляет её.
+// Для одноразовой истекшей задачи устанавливается текущая дата,
+// а для повторяющейся рассчитывается следующая дата выполнения.
 func checkDate(task *db.Task) error {
 	now := time.Now()
 

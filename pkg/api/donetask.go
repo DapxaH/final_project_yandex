@@ -7,6 +7,8 @@ import (
 	"github.com/DapxaH/final_project_yandex/pkg/db"
 )
 
+// doneTaskHandler отмечает задачу выполненной (пустой кружочек --> галочка)
+// Одноразовая задача удаляется, а периодическая переносится на следующую дату.
 func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 

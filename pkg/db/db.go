@@ -21,6 +21,7 @@ CREATE TABLE scheduler (
 
 var db *sql.DB
 
+// Init открывает SQlite БД и создает таблицу scheduler, если файла БД еще нет
 func Init(dbFile string) error {
 	_, err := os.Stat(dbFile)
 
