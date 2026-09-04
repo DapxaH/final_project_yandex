@@ -16,7 +16,7 @@ CREATE TABLE scheduler (
 	repeat VARCHAR(128) NOT NULL DEFAULT ""
 	);
 	
-	CREATE INDEX sheduler_date ON scheduler(date);
+	CREATE INDEX scheduler_date ON scheduler(date);
 	`
 
 var db *sql.DB
