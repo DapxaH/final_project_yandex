@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+	"log"
 	"net/http"
 	"time"
 
@@ -13,7 +15,7 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 
 	if id == "" {
-		writeJson(w, map[string]string{
+		writeJson(w, http.StatusBadRequest, map[string]string{
 			"error": "Не указан идентификатор",
 		})
 		return
@@ -21,8 +23,16 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	task, err := db.GetTask(id)
 	if err != nil {
-		writeJson(w, map[string]string{
-			"error": err.Error(),
+		if errors.Is(err, db.ErrTaskNotFound) {
+			writeJson(w, http.StatusNotFound, map[string]string{
+				"error": "Задача не найдена",
+			})
+			return
+		}
+		log.Printf("failed to get task: %v", err)
+
+		writeJson(w, http.StatusInternalServerError, map[string]string{
+			"error": "Внутренняя ошибка",
 		})
 		return
 	}
@@ -30,19 +40,27 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if task.Repeat == "" {
 		err = db.DeleteTask(id)
 		if err != nil {
-			writeJson(w, map[string]string{
-				"error": err.Error(),
+			if errors.Is(err, db.ErrTaskNotFound) {
+				writeJson(w, http.StatusNotFound, map[string]string{
+					"error": "Задача не найдена",
+				})
+				return
+			}
+			log.Printf("failed to delete completed task: %v", err)
+
+			writeJson(w, http.StatusInternalServerError, map[string]string{
+				"error": "Внутренняя ошибка",
 			})
 			return
 		}
 
-		writeJson(w, map[string]string{})
+		writeJson(w, http.StatusOK, map[string]string{})
 		return
 	}
 
 	next, err := NextDate(time.Now(), task.Date, task.Repeat)
 	if err != nil {
-		writeJson(w, map[string]string{
+		writeJson(w, http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
 		return
@@ -50,10 +68,18 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = db.UpdateDate(next, id)
 	if err != nil {
-		writeJson(w, map[string]string{
-			"error": err.Error(),
+		if errors.Is(err, db.ErrTaskNotFound) {
+			writeJson(w, http.StatusNotFound, map[string]string{
+				"error": "Задача не найдена",
+			})
+			return
+		}
+		log.Printf("failed to update task date: %v", err)
+
+		writeJson(w, http.StatusInternalServerError, map[string]string{
+			"error": "Внутренняя ошибка",
 		})
 		return
 	}
-	writeJson(w, map[string]string{})
+	writeJson(w, http.StatusOK, map[string]string{})
 }

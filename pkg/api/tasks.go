@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/DapxaH/final_project_yandex/pkg/db"
@@ -15,13 +16,15 @@ type TaskResp struct {
 func getTasksHandler(w http.ResponseWriter, r *http.Request) {
 	tasks, err := db.Tasks(50)
 	if err != nil {
-		writeJson(w, map[string]string{
-			"error": err.Error(),
+		log.Printf("failed to get tasks: %v", err)
+
+		writeJson(w, http.StatusInternalServerError, map[string]string{
+			"error": "Внутренняя ошибка сервера",
 		})
 		return
 	}
 
-	writeJson(w, TaskResp{
+	writeJson(w, http.StatusOK, TaskResp{
 		Tasks: tasks,
 	})
 }

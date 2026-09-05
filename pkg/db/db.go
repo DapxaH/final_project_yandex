@@ -44,3 +44,11 @@ func Init(dbFile string) error {
 
 	return nil
 }
+
+func Close() error {
+	if db == nil {
+		return nil
+	}
+
+	return db.Close()
+}

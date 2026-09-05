@@ -1,8 +1,11 @@
 package db
 
 import (
-	"fmt"
+	"database/sql"
+	"errors"
 )
+
+var ErrTaskNotFound = errors.New("Задача не найдена")
 
 // Task представляет задачу в планировщике
 type Task struct {
@@ -95,6 +98,9 @@ func GetTask(id string) (*Task, error) {
 		&task.Repeat,
 	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrTaskNotFound
+		}
 		return nil, err
 	}
 
@@ -127,7 +133,7 @@ func UpdateTask(task *Task) error {
 	}
 
 	if count == 0 {
-		return fmt.Errorf("Задача не найдена")
+		return ErrTaskNotFound
 	}
 
 	return nil
@@ -151,7 +157,7 @@ func DeleteTask(id string) error {
 	}
 
 	if count == 0 {
-		return fmt.Errorf("Задача не найдена")
+		return ErrTaskNotFound
 	}
 
 	return nil
@@ -176,8 +182,7 @@ func UpdateDate(next string, id string) error {
 	}
 
 	if count == 0 {
-		return fmt.Errorf("Задача не найдена")
-
+		return ErrTaskNotFound
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -13,7 +14,7 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&task)
 	if err != nil {
-		writeJson(w, map[string]string{
+		writeJson(w, http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
 
@@ -21,7 +22,7 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if task.Title == "" {
-		writeJson(w, map[string]string{
+		writeJson(w, http.StatusBadRequest, map[string]string{
 			"error": "Не указан заголовок задачи",
 		})
 		return
@@ -29,7 +30,7 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = checkDate(&task)
 	if err != nil {
-		writeJson(w, map[string]string{
+		writeJson(w, http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
 		return
@@ -37,13 +38,15 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	id, err := db.AddTask(&task)
 	if err != nil {
-		writeJson(w, map[string]string{
-			"error": err.Error(),
+		log.Printf("failed to add task: %v", err)
+
+		writeJson(w, http.StatusInternalServerError, map[string]string{
+			"error": "Внутренняя ошибка",
 		})
 		return
 	}
 
-	writeJson(w, map[string]string{
+	writeJson(w, http.StatusOK, map[string]string{
 		"id": strconv.FormatInt(id, 10),
 	})
 }
